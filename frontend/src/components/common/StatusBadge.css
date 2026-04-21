@@ -1,0 +1,38 @@
+.status {
+  border-radius: 20px;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: var(--color-pending-bg);
+  color: var(--color-pending-text);
+}
+
+.status-approved {
+  background: var(--color-approved-bg);
+  color: var(--color-approved-text);
+}
+
+.status-rejected {
+  background: var(--color-rejected-bg);
+  color: var(--color-rejected-text);
+}
+
+.status-cancelled {
+  background: var(--color-cancelled-bg);
+  color: var(--color-cancelled-text);
+}
+
+.status-queued {
+  background: var(--color-queued-bg);
+  color: var(--color-queued-text);
+}
+
+.status-awaiting {
+  background: var(--color-awaiting-bg);
+  color: var(--color-awaiting-text);
+}

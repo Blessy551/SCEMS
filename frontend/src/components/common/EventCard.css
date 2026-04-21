@@ -1,0 +1,39 @@
+.event-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  transition: border-left-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.event-card:hover {
+  border-left-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.event-card-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.event-card h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.event-meta,
+.event-club {
+  color: var(--color-text-muted);
+  margin: 8px 0 0;
+}
+
+.event-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
