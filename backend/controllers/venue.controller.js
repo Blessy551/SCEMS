@@ -52,6 +52,38 @@ const searchVenues = async (req, res, next) => {
   }
 };
 
+const getVenuesByRequirements = async (req, res, next) => {
+  try {
+    const { eventType, audience, resources } = req.query;
+    let sql = `
+      SELECT v.*, u.Name AS HODName
+      FROM Venues v
+      LEFT JOIN Users u ON v.HOD_UserID = u.UserID
+      WHERE 1=1`;
+    const params = [];
+
+    if (audience) {
+      sql += ' AND v.Capacity >= ?';
+      params.push(Number(audience));
+    }
+
+    if (resources && resources.trim()) {
+      const resourceList = resources.split(',').map((r) => r.trim()).filter(Boolean);
+      if (resourceList.length > 0) {
+        sql += ' AND (' + resourceList.map(() => 'v.AvailableResources LIKE ?').join(' OR ') + ')';
+        resourceList.forEach((r) => params.push(`%${r}%`));
+      }
+    }
+
+    sql += ' ORDER BY v.Name';
+
+    const [venues] = await pool.query(sql, params);
+    res.json({ success: true, data: venues });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getVenueById = async (req, res, next) => {
   try {
     const [venues] = await pool.query(`
@@ -151,6 +183,7 @@ const deleteBlockedSlot = async (req, res, next) => {
 module.exports = {
   getVenues,
   searchVenues,
+  getVenuesByRequirements,
   getVenueById,
   checkAvailability,
   getBlockedSlots,

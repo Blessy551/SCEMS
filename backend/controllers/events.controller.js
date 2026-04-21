@@ -123,6 +123,8 @@ const cancelEvent = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Event not found.' });
     }
     const event = rows[0];
+    const isHOD = req.user.role === 'HOD';
+
     if (req.user.role === 'Organiser' && event.OrganizerID !== req.user.userId) {
       return res.status(403).json({ success: false, message: 'You can cancel only your own events.' });
     }
@@ -133,6 +135,13 @@ const cancelEvent = async (req, res, next) => {
        WHERE RequestID = ?`,
       [reason || null, event.RequestID]
     );
+
+    if (isHOD) {
+      await pool.query(
+        'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
+        [event.OrganizerID, `Your event "${event.EventName}" was cancelled by your HOD.`, 'cancelled']
+      );
+    }
 
     return res.json({ success: true, message: 'Event cancelled successfully.' });
   } catch (err) {

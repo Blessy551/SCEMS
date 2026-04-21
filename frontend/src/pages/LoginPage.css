@@ -69,3 +69,61 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Role Selection Styles */
+.role-selection {
+  text-align: center;
+}
+
+.selection-hint {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+.role-buttons {
+  display: grid;
+  gap: 16px;
+}
+
+.role-btn {
+  padding: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 100%;
+}
+
+.btn-secondary {
+  background: white;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-secondary:hover {
+  background: #FFF5F5;
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 0;
+  text-align: left;
+  width: fit-content;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.login-register-links p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}

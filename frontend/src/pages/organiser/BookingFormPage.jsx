@@ -1,11 +1,12 @@
+import { useState, useEffect } from "react";
 import { useSearchParams } from 'react-router-dom';
 import BookingForm from '../../components/booking/BookingForm';
 import PageShell from '../PageShell';
 
 const links = [
-  { to: '/organiser', icon: 'M', label: 'My Bookings' },
-  { to: '/organiser/venues', icon: 'V', label: 'Book a Venue' },
-  { to: '/calendar', icon: 'C', label: 'Calendar' }
+  { to: '/organiser', icon: '🏠', label: 'Dashboard' },
+  { to: '/book/venues', icon: '📍', label: 'Book a Venue' },
+  { to: '/calendar', icon: '📅', label: 'My Events' }
 ];
 
 const BookingFormPage = () => {

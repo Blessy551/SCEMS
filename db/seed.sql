@@ -3,9 +3,6 @@ USE scems_db;
 -- Demo password for all seeded accounts: admin123
 SET @hash = '$2a$10$OO2wQy.K.u84A3xpPBlo5uh1A9Zt4ACm6deaG2x9WKnHibN9LDXT2';
 
-INSERT INTO Users (Name, Email, PasswordHash, Role) VALUES
-('Dr. Principal Admin', 'principal@vnrvjiet.in', @hash, 'Principal');
-
 INSERT INTO Users (Name, Email, PasswordHash, Role, Department) VALUES
 ('Dr. Ramesh Kumar', 'hod.admin@vnrvjiet.in', @hash, 'HOD', 'Administration'),
 ('Dr. Priya Sharma', 'hod.cse@vnrvjiet.in', @hash, 'HOD', 'CSE'),
@@ -30,3 +27,10 @@ INSERT INTO BlockedSlots (VenueID, DayOfWeek, StartTime, EndTime, Reason) VALUES
 (4, 1, '09:00:00', '11:00:00', 'Lab Practical Class'),
 (4, 3, '14:00:00', '16:00:00', 'Lab Practical Class'),
 (2, 2, '10:00:00', '11:00:00', 'Department Seminar');
+
+-- Demo notifications (assuming seeded UserIDs: HOD CSE = 3, HOD ECE = 4, Organiser Blessy = 6)
+INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES
+(3, 'Demo: A booking request for "ACM Hackathon" is awaiting your approval.', 'booking_submitted'),
+(4, 'Demo: A booking request for "IEEE Workshop" is awaiting your approval.', 'booking_submitted'),
+(6, 'Demo: Your booking request has been received and is pending HOD review.', 'booking_submitted');
+

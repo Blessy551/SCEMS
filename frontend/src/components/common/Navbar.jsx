@@ -19,6 +19,15 @@ const Navbar = ({ unreadCount = 0, notifications = [], onMarkRead, onMarkAllRead
         <span>SCEMS</span>
         <small>VNRVJIET</small>
       </Link>
+      <nav className="navbar-links">
+        {user?.role === 'Organiser' && (
+          <Link to="/book/venues" className="nav-link">Book a Venue</Link>
+        )}
+        {user?.role === 'HOD' && (
+          <Link to="/hod/requests" className="nav-link">Pending Requests</Link>
+        )}
+        <Link to="/notifications" className="nav-link">Notifications</Link>
+      </nav>
       <div className="navbar-spacer" />
       <div className="navbar-actions">
         <button className="bell" type="button" title="Notifications" aria-label="Notifications" onClick={() => setShowDropdown((s) => !s)}>
@@ -34,14 +43,25 @@ const Navbar = ({ unreadCount = 0, notifications = [], onMarkRead, onMarkAllRead
             <div className="notif-list">
               {notifications.length === 0 && <p className="notif-empty">No notifications yet.</p>}
               {notifications.map((notif) => (
-                <button key={notif.NotifID} type="button" className={notif.IsRead ? 'notif-item' : 'notif-item unread'} onClick={() => onMarkRead(notif.NotifID)}>
+                <button
+                  key={notif.NotifID}
+                  type="button"
+                  className={notif.IsRead ? 'notif-item' : 'notif-item unread'}
+                  onClick={() => {
+                    onMarkRead(notif.NotifID);
+                    navigate('/notifications');
+                  }}
+                >
                   <span>{notif.Message}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
-        <span className="role-chip">{user?.role}</span>
+        <div className="user-profile">
+          <span className="user-name">{user?.name}</span>
+          <span className="role-chip">{user?.role}</span>
+        </div>
         <button className="logout" type="button" onClick={handleLogout}>Logout</button>
       </div>
     </header>

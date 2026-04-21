@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import api from '../../api/axiosInstance';
 import AvailabilityBanner from './AvailabilityBanner';
 
@@ -15,8 +15,19 @@ const BookingForm = ({ initialVenueId = '' }) => {
   });
   const [availability, setAvailability] = useState(null);
   const [message, setMessage] = useState('');
+  const [venueName, setVenueName] = useState('Loading...');
 
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+  useEffect(() => {
+    if (form.venueId) {
+      api.get(`/venues/${form.venueId}`)
+        .then((res) => setVenueName(res.data.data.Name))
+        .catch(() => setVenueName('Unknown Venue'));
+    } else {
+      setVenueName('No venue selected');
+    }
+  }, [form.venueId]);
 
   const check = async () => {
     const res = await api.get('/venues/availability', {
@@ -44,8 +55,10 @@ const BookingForm = ({ initialVenueId = '' }) => {
   return (
     <form className="grid" onSubmit={submit}>
       <div className="field">
-        <label>Venue ID</label>
-        <input value={form.venueId} onChange={(e) => update('venueId', e.target.value)} required />
+        <label>Selected Venue</label>
+        <div style={{ padding: '10px 12px', background: 'var(--color-bg)', border: '1px solid var(--color-border)', borderRadius: 6, fontWeight: 600, color: 'var(--color-primary)' }}>
+          {venueName}
+        </div>
       </div>
       <div className="field">
         <label>Event name</label>

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const normalizeRole = (role) => {
-  const map = { organiser: 'Organiser', hod: 'HOD', principal: 'Principal' };
+  const map = { organiser: 'Organiser', hod: 'HOD' };
   return map[String(role || '').toLowerCase()] || role;
 };
 

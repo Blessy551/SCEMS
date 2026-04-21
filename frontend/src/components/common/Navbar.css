@@ -30,7 +30,26 @@
 .navbar-actions {
   align-items: center;
   display: flex;
-  gap: 12px;
+  gap: 16px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+  margin-left: 20px;
+}
+
+.nav-link {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.85;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.nav-link:hover {
+  opacity: 1;
 }
 
 .bell {
@@ -113,6 +132,17 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 10px;
+}
+
+.user-profile {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .logout {

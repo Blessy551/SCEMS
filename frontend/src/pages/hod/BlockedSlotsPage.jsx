@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axiosInstance';
 import PageShell from '../PageShell';
 
-const links = [
-  { to: '/hod', icon: 'P', label: 'Pending Approvals' },
-  { to: '/hod/blocked-slots', icon: 'B', label: 'Blocked Slots' },
-  { to: '/calendar', icon: 'C', label: 'Calendar' }
+const hodLinks = [
+  { to: '/hod',            icon: '🏠', label: 'Dashboard' },
+  { to: '/hod/requests',   icon: '📝', label: 'Pending Requests' },
+  { to: '/hod/approved',   icon: '✅', label: 'Approved Events' },
+  { to: '/hod/calendar',   icon: '📅', label: 'Calendar' },
+  { to: '/notifications',  icon: '🔔', label: 'Notifications' },
 ];
 
 const BlockedSlotsPage = () => {
@@ -28,7 +30,7 @@ const BlockedSlotsPage = () => {
   };
 
   return (
-    <PageShell links={links}>
+    <PageShell links={hodLinks}>
       <h1 className="section-title">Blocked Slots</h1>
       <form className="card grid" style={{ padding: 16, marginBottom: 20 }} onSubmit={submit}>
         <div className="field"><label>Venue ID</label><input value={form.venueId} onChange={(e) => update('venueId', e.target.value)} required /></div>

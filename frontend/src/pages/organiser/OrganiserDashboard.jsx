@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axiosInstance';
@@ -7,13 +8,14 @@ import { useAuth } from '../../context/AuthContext';
 
 const links = [
   { to: '/organiser', icon: '🏠', label: 'Dashboard' },
-  { to: '/organiser/venues', icon: '📍', label: 'Book Venue' },
+  { to: '/book/venues', icon: '📍', label: 'Book a Venue' },
   { to: '/calendar', icon: '📅', label: 'My Events' },
   { to: '/notifications', icon: '🔔', label: 'Notifications' }
 ];
 
 const OrganiserDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
 
   const load = async () => {
@@ -49,7 +51,7 @@ const OrganiserDashboard = () => {
       <section className="card" style={{ background: 'var(--color-primary)', color: 'white', padding: 24, marginBottom: 20 }}>
         <h1 style={{ margin: 0 }}>Welcome back, {user?.name}</h1>
         <p style={{ color: 'var(--color-accent)', margin: '6px 0 18px' }}>{user?.clubName}</p>
-        <Link className="btn" style={{ background: 'var(--color-accent)', color: 'var(--color-primary-dark)' }} to="/organiser/venues">Book a Venue</Link>
+        <button className="btn" style={{ background: 'var(--color-accent)', color: 'var(--color-primary-dark)' }} onClick={() => navigate('/book/venues')}>Book a Venue</button>
       </section>
 
       <section className="grid stats-grid" style={{ marginBottom: 24 }}>
@@ -73,9 +75,14 @@ const OrganiserDashboard = () => {
             event={booking}
             actions={
               <>
-                {booking.Status === 'Pending' && <Link className="btn btn-outline" to={`/organiser/book?venueId=${booking.VenueID}`}>Edit</Link>}
+                {booking.Status === 'Pending' && <Link className="btn btn-outline" to={`/book?venueId=${booking.VenueID}`}>Edit</Link>}
                 {booking.Status !== 'Cancelled' && <button className="btn btn-danger" type="button" onClick={() => cancel(booking)}>Cancel</button>}
-                {booking.Status === 'Approved' && booking.EventID && <button className="btn btn-outline" type="button" onClick={() => cancelEvent(booking)}>Cancel Event</button>}
+                {booking.Status === 'Approved' && booking.EventID && (
+                  <>
+                    <button className="btn btn-outline" type="button" onClick={() => navigate(`/organiser/publish/${booking.EventID}`)}>Add Event Details</button>
+                    <button className="btn btn-outline" type="button" onClick={() => cancelEvent(booking)}>Cancel Event</button>
+                  </>
+                )}
               </>
             }
           />

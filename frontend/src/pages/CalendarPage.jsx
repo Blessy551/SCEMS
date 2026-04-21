@@ -20,20 +20,16 @@ const typeColorMap = {
 const linksByRole = {
   Organiser: [
     { to: '/organiser', icon: '🏠', label: 'Dashboard' },
-    { to: '/organiser/venues', icon: '📍', label: 'Book Venue' },
+    { to: '/book/venues', icon: '📍', label: 'Book a Venue' },
     { to: '/calendar', icon: '📅', label: 'My Events' },
     { to: '/notifications', icon: '🔔', label: 'Notifications' }
   ],
   HOD: [
-    { to: '/hod', icon: '🏠', label: 'Dashboard' },
-    { to: '/hod', icon: '📝', label: 'Pending Requests' },
-    { to: '/calendar', icon: '✅', label: 'Approved Events' },
-    { to: '/notifications', icon: '🔔', label: 'Notifications' }
-  ],
-  Principal: [
-    { to: '/principal', icon: '🏠', label: 'Dashboard' },
-    { to: '/calendar', icon: '📅', label: 'All Events' },
-    { to: '/principal', icon: '🛑', label: 'Cancel Events' }
+    { to: '/hod',            icon: '🏠', label: 'Dashboard' },
+    { to: '/hod/requests',   icon: '📝', label: 'Pending Requests' },
+    { to: '/hod/approved',   icon: '✅', label: 'Approved Events' },
+    { to: '/hod/calendar',   icon: '📅', label: 'Calendar' },
+    { to: '/notifications',  icon: '🔔', label: 'Notifications' },
   ]
 };
 
@@ -42,16 +38,14 @@ const CalendarPage = () => {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    const endpoint = user?.role === 'Principal'
-      ? '/admin/events'
-      : user?.role === 'HOD'
-        ? '/bookings/hod'
+    const endpoint = user?.role === 'HOD'
+        ? '/bookings/hod/approved'
         : '/bookings/my';
     api.get(endpoint).then((res) => setRows(res.data.data)).catch(() => setRows([]));
   }, [user]);
 
   const events = useMemo(() => rows
-    .filter((row) => row.Status === 'Approved' || row.Status === 'Upcoming')
+    .filter((row) => row.Status === 'Approved' || row.Status === 'Upcoming' || row.EventStatus === 'Upcoming')
     .map((row) => {
       const date = row.EventDate || row.RequestedDate;
       const start = new Date(`${date}T${row.StartTime}`);

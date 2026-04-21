@@ -3,6 +3,6 @@ const ctrl = require('../controllers/feedback.controller');
 const { verifyToken, checkRole } = require('../middleware/auth');
 
 router.post('/', verifyToken, checkRole('Organiser'), ctrl.submitFeedback);
-router.get('/', verifyToken, checkRole('HOD', 'Principal'), ctrl.getFeedback);
+router.get('/', verifyToken, checkRole('HOD'), ctrl.getFeedback);
 
 module.exports = router;

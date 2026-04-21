@@ -6,8 +6,7 @@ require('dotenv').config();
 
 const roleMap = {
   organiser: 'Organiser',
-  hod: 'HOD',
-  principal: 'Principal'
+  hod: 'HOD'
 };
 
 const normalizeRole = (role) => roleMap[String(role || '').toLowerCase()] || role;

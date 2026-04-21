@@ -11,8 +11,18 @@ const notify = async (connection, userId, message, type) => {
 };
 
 const findVenueHod = async (connection, venueId) => {
-  const [rows] = await connection.query('SELECT HOD_UserID FROM Venues WHERE VenueID = ?', [venueId]);
-  return rows[0]?.HOD_UserID || null;
+  const [rows] = await connection.query('SELECT Name, HOD_UserID, OwningDepartment FROM Venues WHERE VenueID = ?', [venueId]);
+  if (rows.length === 0) return { hodId: null, venueName: 'Unknown Venue' };
+  
+  const venue = rows[0];
+  if (venue.HOD_UserID) return { hodId: venue.HOD_UserID, venueName: venue.Name };
+
+  // Fallback: Find any HOD in the venue's department
+  const [deptHods] = await connection.query(
+    'SELECT UserID FROM Users WHERE Role="HOD" AND Department = ? LIMIT 1',
+    [venue.OwningDepartment]
+  );
+  return { hodId: deptHods[0]?.UserID || null, venueName: venue.Name };
 };
 
 const createBooking = async (req, res, next) => {
@@ -70,9 +80,9 @@ const createBooking = async (req, res, next) => {
       [organizerId, venueId, eventName, eventType || null, expectedAudience || null, resourcesRequired || null, requestedDate, startTime, endTime]
     );
 
-    const hodId = await findVenueHod(connection, venueId);
+    const { hodId, venueName } = await findVenueHod(connection, venueId);
     if (hodId) {
-      await notify(connection, hodId, `New booking request "${eventName}" is awaiting HOD approval.`, 'booking_submitted');
+      await notify(connection, hodId, `New booking request for "${venueName}" (${eventName}) is awaiting HOD approval.`, 'booking_submitted');
     }
 
     await connection.commit();
@@ -112,9 +122,31 @@ const getHodBookings = async (req, res, next) => {
       FROM BookingRequests br
       JOIN Users u ON br.OrganizerID = u.UserID
       JOIN Venues v ON br.VenueID = v.VenueID
-      WHERE v.HOD_UserID = ? AND br.Status = 'Pending'
+      JOIN Users hod ON hod.UserID = ?
+      WHERE (v.HOD_UserID = hod.UserID OR (v.HOD_UserID IS NULL AND v.OwningDepartment = hod.Department))
+        AND br.Status = 'Pending'
       ORDER BY br.SubmittedAt
-    `, [req.user.userId]);
+    `, [req.user.userId, req.user.userId]);
+    res.json({ success: true, data: requests });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getHodApprovedBookings = async (req, res, next) => {
+  try {
+    const [requests] = await pool.query(`
+      SELECT br.*, e.EventID, e.Status AS EventStatus, u.Name AS OrganizerName,
+             u.ClubName, v.Name AS VenueName, v.Type AS VenueType
+      FROM BookingRequests br
+      JOIN Events e ON e.RequestID = br.RequestID
+      JOIN Users u ON br.OrganizerID = u.UserID
+      JOIN Venues v ON br.VenueID = v.VenueID
+      JOIN Users hod ON hod.UserID = ?
+      WHERE (v.HOD_UserID = hod.UserID OR (v.HOD_UserID IS NULL AND v.OwningDepartment = hod.Department))
+        AND br.Status = 'Approved'
+      ORDER BY br.RequestedDate DESC
+    `, [req.user.userId, req.user.userId]);
     res.json({ success: true, data: requests });
   } catch (err) {
     next(err);
@@ -278,22 +310,13 @@ const cancelBooking = async (req, res, next) => {
         [queued.OrganizerID, `A slot has opened for "${queued.EventName || request.EventName}". Confirm within 24 hours.`, 'queue_promoted']
       );
 
-      const [venueRows] = await pool.query('SELECT HOD_UserID FROM Venues WHERE VenueID = ?', [request.VenueID]);
-      const hodUserId = venueRows[0]?.HOD_UserID;
-      if (hodUserId) {
+      const { hodId, venueName } = await findVenueHod(pool, request.VenueID);
+      if (hodId) {
         await pool.query(
           'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
-          [hodUserId, `Queue item #${queued.QueueID} moved to active after a cancellation.`, 'queue_activated']
+          [hodId, `Queue item #${queued.QueueID} for "${venueName}" moved to active after a cancellation.`, 'queue_activated']
         );
       }
-    }
-
-    if (isLate) {
-      const [principals] = await pool.query("SELECT UserID FROM Users WHERE Role = 'Principal'");
-      await Promise.all(principals.map((p) => pool.query(
-        'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
-        [p.UserID, `Late cancellation reported for "${request.EventName}".`, 'late_cancellation']
-      )));
     }
 
     await audit.log(req.user.userId, req.user.role, 'BookingCancelled', 'BookingRequest', id, { isLate, reason });
@@ -312,6 +335,7 @@ module.exports = {
   createBooking,
   getMyBookings,
   getHodBookings,
+  getHodApprovedBookings,
   updateBooking,
   approveBooking,
   rejectBooking,

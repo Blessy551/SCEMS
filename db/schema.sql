@@ -6,7 +6,7 @@ CREATE TABLE Users (
   Name          VARCHAR(100) NOT NULL,
   Email         VARCHAR(150) NOT NULL UNIQUE,
   PasswordHash  VARCHAR(255) NOT NULL,
-  Role          ENUM('Organiser','HOD','Principal') NOT NULL,
+  Role          ENUM('Organiser','HOD') NOT NULL,
   Department    VARCHAR(100),
   ClubName      VARCHAR(100),
   CreatedAt     DATETIME DEFAULT CURRENT_TIMESTAMP

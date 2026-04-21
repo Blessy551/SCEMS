@@ -57,6 +57,5 @@ npm run dev
 
 All seeded accounts use password `admin123`.
 
-- Principal: `principal@vnrvjiet.in`
 - HOD: `hod.cse@vnrvjiet.in`
 - Organiser: `blessy@vnrvjiet.in`

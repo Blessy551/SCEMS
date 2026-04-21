@@ -4,6 +4,7 @@ const { verifyToken, checkRole } = require('../middleware/auth');
 
 router.get('/', verifyToken, ctrl.getVenues);
 router.get('/search', verifyToken, ctrl.searchVenues);
+router.get('/by-requirements', verifyToken, ctrl.getVenuesByRequirements);
 router.get('/availability', verifyToken, ctrl.checkAvailability);
 router.get('/blocked-slots', verifyToken, ctrl.getBlockedSlots);
 router.post('/blocked-slots', verifyToken, checkRole('HOD'), ctrl.addBlockedSlot);

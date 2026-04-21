@@ -40,8 +40,8 @@ const RegisterPage = () => {
       <section className="login-panel">
         <div>
           <h1>SCEMS</h1>
-          <p>Create your {role} account</p>
-          <small>Smart Campus Event Management System</small>
+          <p>Smart Campus Event Management System</p>
+          <small>VNRVJIET</small>
         </div>
         <form className="login-card" onSubmit={submit}>
           <h2>Register as {role}</h2>

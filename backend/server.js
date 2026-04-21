@@ -29,6 +29,17 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'SCEMS backend is running.' });
 });
 
+if (process.env.NODE_ENV !== 'production') {
+  app.post('/api/dev/seed-notifications', require('./middleware/auth').verifyToken, async (req, res) => {
+    const pool = require('./db/pool');
+    await pool.query(
+      'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
+      [req.user.userId, 'Test notification: a new booking request is awaiting your review.', 'test']
+    );
+    res.json({ success: true, message: 'Test notification inserted.' });
+  });
+}
+
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/venues', require('./routes/venue.routes'));
 app.use('/api/bookings', require('./routes/booking.routes'));
