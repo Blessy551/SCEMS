@@ -36,4 +36,20 @@ const markAllRead = async (req, res, next) => {
   }
 };
 
-module.exports = { getNotifications, markRead, markAllRead };
+const createNotification = async (req, res, next) => {
+  try {
+    const { recipientUserId, message, type } = req.body;
+    if (!recipientUserId || !message) {
+      return res.status(400).json({ success: false, message: 'recipientUserId and message are required.' });
+    }
+    const [result] = await pool.query(
+      'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
+      [recipientUserId, message, type || 'manual']
+    );
+    res.status(201).json({ success: true, data: { notifId: result.insertId } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getNotifications, markRead, markAllRead, createNotification };

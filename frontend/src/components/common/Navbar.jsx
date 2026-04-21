@@ -1,29 +1,12 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
-const roleLinks = {
-  Organiser: [
-    { to: '/organiser', label: 'Dashboard' },
-    { to: '/organiser/venues', label: 'Venues' },
-    { to: '/calendar', label: 'Calendar' }
-  ],
-  HOD: [
-    { to: '/hod', label: 'Approvals' },
-    { to: '/hod/blocked-slots', label: 'Blocked Slots' },
-    { to: '/calendar', label: 'Calendar' }
-  ],
-  Principal: [
-    { to: '/principal', label: 'Control Room' },
-    { to: '/principal/audit-log', label: 'Audit Log' },
-    { to: '/calendar', label: 'Calendar' }
-  ]
-};
-
-const Navbar = ({ unreadCount = 0 }) => {
+const Navbar = ({ unreadCount = 0, notifications = [], onMarkRead, onMarkAllRead }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const links = roleLinks[user?.role] || [];
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -36,16 +19,28 @@ const Navbar = ({ unreadCount = 0 }) => {
         <span>SCEMS</span>
         <small>VNRVJIET</small>
       </Link>
-      <nav className="navbar-links" aria-label="Primary">
-        {links.map((link) => (
-          <Link key={link.to} to={link.to}>{link.label}</Link>
-        ))}
-      </nav>
+      <div className="navbar-spacer" />
       <div className="navbar-actions">
-        <button className="bell" type="button" title="Notifications" aria-label="Notifications">
-          <span aria-hidden="true">Bell</span>
+        <button className="bell" type="button" title="Notifications" aria-label="Notifications" onClick={() => setShowDropdown((s) => !s)}>
+          <span aria-hidden="true">🔔</span>
           {unreadCount > 0 && <strong>{unreadCount}</strong>}
         </button>
+        {showDropdown && (
+          <div className="notif-dropdown">
+            <div className="notif-dropdown-head">
+              <span>Notifications</span>
+              <button type="button" onClick={onMarkAllRead}>Mark all read</button>
+            </div>
+            <div className="notif-list">
+              {notifications.length === 0 && <p className="notif-empty">No notifications yet.</p>}
+              {notifications.map((notif) => (
+                <button key={notif.NotifID} type="button" className={notif.IsRead ? 'notif-item' : 'notif-item unread'} onClick={() => onMarkRead(notif.NotifID)}>
+                  <span>{notif.Message}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <span className="role-chip">{user?.role}</span>
         <button className="logout" type="button" onClick={handleLogout}>Logout</button>
       </div>

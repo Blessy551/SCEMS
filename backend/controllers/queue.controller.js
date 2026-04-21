@@ -8,6 +8,14 @@ const joinQueue = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Venue, date, start time, and end time are required.' });
     }
 
+    const [activeConflicts] = await pool.query(
+      `SELECT RequestID FROM BookingRequests
+       WHERE VenueID = ? AND RequestedDate = ? AND Status IN ('Pending','Approved')
+       AND (? < EndTime) AND (StartTime < ?)`,
+      [venueId, requestedDate, startTime, endTime]
+    );
+    const queueStatus = activeConflicts.length === 0 ? 'active' : 'queued';
+
     const [positions] = await pool.query(
       `SELECT COALESCE(MAX(QueuePosition), 0) + 1 AS NextPosition
        FROM Queue
@@ -19,13 +27,13 @@ const joinQueue = async (req, res, next) => {
 
     const [result] = await pool.query(
       `INSERT INTO Queue
-       (VenueID, RequestedDate, StartTime, EndTime, OrganizerID, QueuePosition)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [venueId, requestedDate, startTime, endTime, req.user.userId, position]
+       (VenueID, RequestedDate, StartTime, EndTime, OrganizerID, QueuePosition, QueueStatus)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [venueId, requestedDate, startTime, endTime, req.user.userId, position, queueStatus]
     );
 
     await audit.log(req.user.userId, req.user.role, 'QueueJoined', 'Queue', result.insertId, { position });
-    res.status(201).json({ success: true, message: 'Joined queue.', data: { queueId: result.insertId, position } });
+    res.status(201).json({ success: true, message: 'Joined queue.', data: { queueId: result.insertId, position, queueStatus } });
   } catch (err) {
     next(err);
   }

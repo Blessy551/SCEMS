@@ -4,10 +4,10 @@ import EventCard from '../../components/common/EventCard';
 import PageShell from '../PageShell';
 
 const links = [
-  { to: '/hod', icon: 'P', label: 'Pending Approvals' },
-  { to: '/calendar', icon: 'A', label: 'Approved Events' },
-  { to: '/hod/blocked-slots', icon: 'B', label: 'Blocked Slots' },
-  { to: '/calendar', icon: 'C', label: 'Calendar' }
+  { to: '/hod', icon: '🏠', label: 'Dashboard' },
+  { to: '/hod', icon: '📝', label: 'Pending Requests' },
+  { to: '/calendar', icon: '✅', label: 'Approved Events' },
+  { to: '/notifications', icon: '🔔', label: 'Notifications' }
 ];
 
 const badgeColor = (hours) => {

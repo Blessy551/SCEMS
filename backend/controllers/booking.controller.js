@@ -90,8 +90,9 @@ const createBooking = async (req, res, next) => {
 const getMyBookings = async (req, res, next) => {
   try {
     const [requests] = await pool.query(`
-      SELECT br.*, v.Name AS VenueName, v.Type AS VenueType, u.ClubName
+      SELECT br.*, e.EventID, e.Status AS EventStatus, v.Name AS VenueName, v.Type AS VenueType, u.ClubName
       FROM BookingRequests br
+      LEFT JOIN Events e ON e.RequestID = br.RequestID
       JOIN Venues v ON br.VenueID = v.VenueID
       JOIN Users u ON br.OrganizerID = u.UserID
       WHERE br.OrganizerID = ?
@@ -244,6 +245,48 @@ const cancelBooking = async (req, res, next) => {
       [reason || null, isLate, id]
     );
     await pool.query('UPDATE Events SET Status=? WHERE RequestID=?', ['Cancelled', id]);
+
+    const [nextQueue] = await pool.query(
+      `SELECT q.QueueID, q.OrganizerID, q.VenueID, q.RequestedDate, q.StartTime, q.EndTime, br.EventName
+       FROM Queue q
+       LEFT JOIN BookingRequests br
+         ON br.OrganizerID = q.OrganizerID
+         AND br.VenueID = q.VenueID
+         AND br.RequestedDate = q.RequestedDate
+         AND br.StartTime = q.StartTime
+         AND br.EndTime = q.EndTime
+       WHERE q.VenueID = ? AND q.RequestedDate = ? AND q.StartTime = ? AND q.EndTime = ?
+         AND q.ConfirmationStatus IN ('Pending','Confirmed')
+         AND q.QueueStatus = 'queued'
+       ORDER BY q.QueuePosition ASC
+       LIMIT 1`,
+      [request.VenueID, request.RequestedDate, request.StartTime, request.EndTime]
+    );
+
+    if (nextQueue.length > 0) {
+      const queued = nextQueue[0];
+      await pool.query(
+        `UPDATE Queue
+         SET QueueStatus='active', ConfirmationStatus='Pending',
+             ConfirmationDeadline=DATE_ADD(NOW(), INTERVAL 24 HOUR)
+         WHERE QueueID=?`,
+        [queued.QueueID]
+      );
+
+      await pool.query(
+        'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
+        [queued.OrganizerID, `A slot has opened for "${queued.EventName || request.EventName}". Confirm within 24 hours.`, 'queue_promoted']
+      );
+
+      const [venueRows] = await pool.query('SELECT HOD_UserID FROM Venues WHERE VenueID = ?', [request.VenueID]);
+      const hodUserId = venueRows[0]?.HOD_UserID;
+      if (hodUserId) {
+        await pool.query(
+          'INSERT INTO Notifications (RecipientUserID, Message, Type) VALUES (?, ?, ?)',
+          [hodUserId, `Queue item #${queued.QueueID} moved to active after a cancellation.`, 'queue_activated']
+        );
+      }
+    }
 
     if (isLate) {
       const [principals] = await pool.query("SELECT UserID FROM Users WHERE Role = 'Principal'");

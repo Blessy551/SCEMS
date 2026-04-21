@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const normalizeRole = (role) => {
+  const map = { organiser: 'Organiser', hod: 'HOD', principal: 'Principal' };
+  return map[String(role || '').toLowerCase()] || role;
+};
+
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
@@ -11,7 +16,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = { ...decoded, role: normalizeRole(decoded.role) };
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
@@ -25,7 +30,7 @@ const checkRole = (...allowedRoles) => (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Not authenticated.' });
   }
-  if (!allowedRoles.includes(req.user.role)) {
+  if (!allowedRoles.includes(normalizeRole(req.user.role))) {
     return res.status(403).json({
       success: false,
       message: `Access denied. Required: ${allowedRoles.join(' or ')}. Your role: ${req.user.role}`

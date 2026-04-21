@@ -4,14 +4,28 @@ const pool = require('../db/pool');
 const audit = require('../utils/auditLog');
 require('dotenv').config();
 
+const roleMap = {
+  organiser: 'Organiser',
+  hod: 'HOD',
+  principal: 'Principal'
+};
+
+const normalizeRole = (role) => roleMap[String(role || '').toLowerCase()] || role;
+
 const publicUser = (user) => ({
   userId: user.UserID,
   name: user.Name,
   email: user.Email,
-  role: user.Role,
+  role: normalizeRole(user.Role),
   department: user.Department,
   clubName: user.ClubName
 });
+
+const signToken = (user) => jwt.sign(
+  { userId: user.UserID, email: user.Email, role: normalizeRole(user.Role), name: user.Name },
+  process.env.JWT_SECRET,
+  { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+);
 
 const login = async (req, res, next) => {
   try {
@@ -31,11 +45,7 @@ const login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    const token = jwt.sign(
-      { userId: user.UserID, email: user.Email, role: user.Role, name: user.Name },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
+    const token = signToken(user);
 
     await audit.log(user.UserID, user.Role, 'LoginEvent', 'User', user.UserID);
 
@@ -45,7 +55,7 @@ const login = async (req, res, next) => {
   }
 };
 
-const register = async (req, res, next) => {
+const registerByRole = (role, actionType) => async (req, res, next) => {
   try {
     const { name, email, password, department } = req.body;
     if (!name || !email || !password || !department) {
@@ -60,16 +70,26 @@ const register = async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
       'INSERT INTO Users (Name, Email, PasswordHash, Role, Department) VALUES (?, ?, ?, ?, ?)',
-      [name, email, hash, 'HOD', department]
+      [name, email.toLowerCase().trim(), hash, role, department]
     );
 
-    await audit.log(result.insertId, 'HOD', 'HODRegistered', 'User', result.insertId, { department });
+    const [users] = await pool.query('SELECT * FROM Users WHERE UserID = ?', [result.insertId]);
+    const user = users[0];
+    const token = signToken(user);
+    await audit.log(result.insertId, role, actionType, 'User', result.insertId, { department });
 
-    res.status(201).json({ success: true, message: 'HOD registered successfully.' });
+    res.status(201).json({
+      success: true,
+      message: `${role} registered successfully.`,
+      data: { token, user: publicUser(user) }
+    });
   } catch (err) {
     next(err);
   }
 };
+
+const registerHod = registerByRole('HOD', 'HODRegistered');
+const registerOrganiser = registerByRole('Organiser', 'OrganiserRegistered');
 
 const getMe = async (req, res, next) => {
   try {
@@ -83,4 +103,4 @@ const getMe = async (req, res, next) => {
   }
 };
 
-module.exports = { login, register, getMe };
+module.exports = { login, registerHod, registerOrganiser, getMe };

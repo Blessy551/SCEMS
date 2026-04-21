@@ -19,19 +19,21 @@ const typeColorMap = {
 
 const linksByRole = {
   Organiser: [
-    { to: '/organiser', icon: 'M', label: 'My Bookings' },
-    { to: '/organiser/venues', icon: 'V', label: 'Book a Venue' },
-    { to: '/calendar', icon: 'C', label: 'Calendar' }
+    { to: '/organiser', icon: '🏠', label: 'Dashboard' },
+    { to: '/organiser/venues', icon: '📍', label: 'Book Venue' },
+    { to: '/calendar', icon: '📅', label: 'My Events' },
+    { to: '/notifications', icon: '🔔', label: 'Notifications' }
   ],
   HOD: [
-    { to: '/hod', icon: 'P', label: 'Pending Approvals' },
-    { to: '/hod/blocked-slots', icon: 'B', label: 'Blocked Slots' },
-    { to: '/calendar', icon: 'C', label: 'Calendar' }
+    { to: '/hod', icon: '🏠', label: 'Dashboard' },
+    { to: '/hod', icon: '📝', label: 'Pending Requests' },
+    { to: '/calendar', icon: '✅', label: 'Approved Events' },
+    { to: '/notifications', icon: '🔔', label: 'Notifications' }
   ],
   Principal: [
-    { to: '/principal', icon: 'O', label: 'Overview' },
-    { to: '/calendar', icon: 'C', label: 'Calendar' },
-    { to: '/principal/audit-log', icon: 'A', label: 'Audit Log' }
+    { to: '/principal', icon: '🏠', label: 'Dashboard' },
+    { to: '/calendar', icon: '📅', label: 'All Events' },
+    { to: '/principal', icon: '🛑', label: 'Cancel Events' }
   ]
 };
 

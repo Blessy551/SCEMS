@@ -6,10 +6,10 @@ import PageShell from '../PageShell';
 import { useAuth } from '../../context/AuthContext';
 
 const links = [
-  { to: '/organiser', icon: 'M', label: 'My Bookings' },
-  { to: '/organiser/venues', icon: 'V', label: 'Book a Venue' },
-  { to: '/calendar', icon: 'C', label: 'Calendar' },
-  { to: '/organiser/venues', icon: 'Q', label: 'Queue Status' }
+  { to: '/organiser', icon: '🏠', label: 'Dashboard' },
+  { to: '/organiser/venues', icon: '📍', label: 'Book Venue' },
+  { to: '/calendar', icon: '📅', label: 'My Events' },
+  { to: '/notifications', icon: '🔔', label: 'Notifications' }
 ];
 
 const OrganiserDashboard = () => {
@@ -34,6 +34,13 @@ const OrganiserDashboard = () => {
   const cancel = async (booking) => {
     const reason = window.prompt('Cancellation reason, required for late cancellation') || '';
     await api.post(`/bookings/${booking.RequestID}/cancel`, { reason });
+    load();
+  };
+
+  const cancelEvent = async (booking) => {
+    if (!booking.EventID) return;
+    const reason = window.prompt('Reason for event cancellation') || '';
+    await api.post(`/events/${booking.EventID}/cancel`, { reason });
     load();
   };
 
@@ -68,6 +75,7 @@ const OrganiserDashboard = () => {
               <>
                 {booking.Status === 'Pending' && <Link className="btn btn-outline" to={`/organiser/book?venueId=${booking.VenueID}`}>Edit</Link>}
                 {booking.Status !== 'Cancelled' && <button className="btn btn-danger" type="button" onClick={() => cancel(booking)}>Cancel</button>}
+                {booking.Status === 'Approved' && booking.EventID && <button className="btn btn-outline" type="button" onClick={() => cancelEvent(booking)}>Cancel Event</button>}
               </>
             }
           />

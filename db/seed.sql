@@ -19,12 +19,12 @@ INSERT INTO Users (Name, Email, PasswordHash, Role, Department, ClubName) VALUES
 ('Shashanka Rao', 'shashanka@vnrvjiet.in', @hash, 'Organiser', 'MECH', 'ASME VNRVJIET');
 
 INSERT INTO Venues (Name, Block, Floor, Capacity, Type, AvailableResources, OwningDepartment, HOD_UserID) VALUES
-('KS Auditorium', 'A', 'Ground', 300, 'Auditorium', 'Projector,Mic,Stage Lighting,PA System', 'Administration', 2),
-('B Block Seminar Hall', 'B', 'First', 150, 'Seminar Hall', 'Projector,Whiteboard,Mic', 'CSE', 3),
-('ECE Conference Room', 'C', 'Second', 60, 'Seminar Hall', 'Projector,Whiteboard', 'ECE', 4),
-('CSE Lab 301', 'C', 'Third', 45, 'Lab', 'Systems,Projector', 'CSE', 3),
-('Open Ground', 'D', 'Ground', 800, 'Open Ground', 'PA System,Generator', 'Administration', 2),
-('MECH Design Studio', 'E', 'First', 80, 'Classroom', 'Projector,Whiteboard', 'MECH', 5);
+('Seminar Hall A', 'B', 'First', 140, 'Seminar Hall', 'Projector,Whiteboard,Mic', 'CSE', 3),
+('Seminar Hall B', 'C', 'First', 130, 'Seminar Hall', 'Projector,Whiteboard,PA System', 'ECE', 4),
+('Auditorium', 'A', 'Ground', 320, 'Auditorium', 'Projector,Mic,Stage Lighting,PA System', 'Administration', 2),
+('Conference Room 1', 'C', 'Second', 55, 'Seminar Hall', 'Display,Whiteboard', 'ECE', 4),
+('Conference Room 2', 'E', 'First', 60, 'Classroom', 'Projector,Whiteboard', 'MECH', 5),
+('Outdoor Stage', 'D', 'Ground', 900, 'Open Ground', 'PA System,Generator,Lighting', 'Administration', 2);
 
 INSERT INTO BlockedSlots (VenueID, DayOfWeek, StartTime, EndTime, Reason) VALUES
 (4, 1, '09:00:00', '11:00:00', 'Lab Practical Class'),

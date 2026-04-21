@@ -19,6 +19,16 @@ export const AuthProvider = ({ children }) => {
     return nextUser;
   };
 
+  const register = async ({ name, email, password, department, role }) => {
+    const path = role === 'HOD' ? '/auth/register/hod' : '/auth/register/organiser';
+    const res = await api.post(path, { name, email, password, department });
+    const { token, user: nextUser } = res.data.data;
+    localStorage.setItem('scems_token', token);
+    localStorage.setItem('scems_user', JSON.stringify(nextUser));
+    setUser(nextUser);
+    return nextUser;
+  };
+
   const logout = () => {
     localStorage.removeItem('scems_token');
     localStorage.removeItem('scems_user');
@@ -43,6 +53,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
+    register,
     logout,
     isAuthenticated: Boolean(user)
   }), [user, loading]);

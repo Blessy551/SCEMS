@@ -68,6 +68,7 @@ CREATE TABLE Queue (
   SubmittedAt           DATETIME DEFAULT CURRENT_TIMESTAMP,
   ConfirmationDeadline  DATETIME,
   ConfirmationStatus    ENUM('Pending','Confirmed','Expired','Withdrawn') DEFAULT 'Pending',
+  QueueStatus           ENUM('active','queued') DEFAULT 'queued',
   FOREIGN KEY (VenueID) REFERENCES Venues(VenueID),
   FOREIGN KEY (OrganizerID) REFERENCES Users(UserID)
 );
@@ -79,9 +80,15 @@ CREATE TABLE Events (
   OrganizerID  INT NOT NULL,
   EventName    VARCHAR(200) NOT NULL,
   EventType    VARCHAR(100),
+  Category     VARCHAR(100),
   EventDate    DATE NOT NULL,
   StartTime    TIME NOT NULL,
   EndTime      TIME NOT NULL,
+  RegistrationLink      VARCHAR(500),
+  Instructions          TEXT,
+  PosterUrl             VARCHAR(500),
+  IsPublished           BOOLEAN DEFAULT FALSE,
+  RegistrationDeadline  DATETIME,
   Status       ENUM('Upcoming','Completed','Cancelled') DEFAULT 'Upcoming',
   FOREIGN KEY (RequestID) REFERENCES BookingRequests(RequestID),
   FOREIGN KEY (VenueID) REFERENCES Venues(VenueID),

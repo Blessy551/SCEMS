@@ -53,6 +53,17 @@
   margin: 0;
 }
 
+.login-register-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-register-links a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 @media (max-width: 820px) {
   .login-panel {
     grid-template-columns: 1fr;
