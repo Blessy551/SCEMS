@@ -57,5 +57,16 @@ npm run dev
 
 All seeded accounts use password `admin123`.
 
-- HOD: `hod.cse@vnrvjiet.in`
-- Organiser: `blessy@vnrvjiet.in`
+- **Rahul (Organiser)**: `organiser@test.com`
+- **Priya (HOD)**: `hod@test.com`
+- **HOD CSE**: `hod.cse@vnrvjiet.in`
+- **Organiser (ACM)**: `blessy@vnrvjiet.in`
+
+## Database Seeding
+
+To populate the system with demo data:
+
+1.  Run `db/schema.sql` to create the database and tables.
+2.  Run `db/seed.sql` to insert dummy data (users, venues, bookings, etc.).
+
+If you already have data, running `db/seed.sql` will only add missing entries without duplicates.
